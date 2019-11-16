@@ -6,7 +6,7 @@ Configurable Apache Tika Server Docker Image with Tesseract 4.
 
 - Apache Tika 1.20
 - Tesseract OCR 4
-- Tesseract Language Packs: English, Italian, French, Spain, German, Russian
+- Tesseract Language Packs: English
 
 Allows providing external configuration file for Tika Server - for disabling OCR or any other needs.
 
