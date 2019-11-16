@@ -4,6 +4,8 @@ ENV PRODUCT_GROUP "tika"
 ENV PRODUCT_NAME "tika-server"
 ENV PRODUCT_VERSION "1.22"
 
+# Apache Project
+
 ENV PRODUCT_ROOT "https://www.apache.org/dist"
 ENV PRODUCT_KEY_URL "${PRODUCT_ROOT}/${PRODUCT_GROUP}/KEYS"
 ENV PRODUCT_ASC_URL "${PRODUCT_ROOT}/${PRODUCT_GROUP}/${PRODUCT_NAME}-${PRODUCT_VERSION}.jar.asc"
@@ -24,12 +26,12 @@ RUN apt-get -y --fix-missing update \
     && curl -sSL "${NEAREST_JAR_URL}/${PRODUCT_GROUP}/${PRODUCT_NAME}-${PRODUCT_VERSION}.jar" -o "/${PRODUCT_NAME}.jar" \
     && gpg --verify "/tmp/${PRODUCT_NAME}.jar.asc" "/${PRODUCT_NAME}.jar"
 
-FROM ubuntu:18.04
+FROM openjdk:8
 
 EXPOSE 9998
 
 RUN apt-get -y --fix-missing update \
-    && apt-get install -y gdal-bin openjdk-8-jre-headless tesseract-ocr tesseract-ocr-eng \
+    && apt-get install -y gdal-bin tesseract-ocr tesseract-ocr-eng \
     && tesseract -v \
     && apt-get -y clean autoclean \
     && apt-get -y autoremove \
