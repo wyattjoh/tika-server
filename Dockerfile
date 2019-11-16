@@ -1,25 +1,28 @@
 FROM ubuntu:18.04
 
-ENV TIKA_VERSION 1.22
-ENV TIKA_SERVER_URL https://www.apache.org/dist/tika/tika-server-$TIKA_VERSION.jar
+ENV PRODUCT_GROUP "tika"
+ENV PRODUCT_NAME "tika-server"
+ENV PRODUCT_VERSION "1.22"
 
-# Disabled verification step
-# RUN apt-get -y --fix-missing update
-# RUN apt-get install -y gpg curl jq
-# RUN curl -sSL https://people.apache.org/keys/group/tika.asc -o /tmp/tika.asc \
-#     && gpg --import /tmp/tika.asc \
-#     && gpg --keyserver pgpkeys.mit.edu --recv-key 184454FAD8697760F3E00D2E4A51A45B944FFD51 \
-#     && curl -sSL "$TIKA_SERVER_URL.asc" -o "/tmp/tika-server-${TIKA_VERSION}.jar.asc" \
-#     && NEAREST_TIKA_SERVER_URL=$(curl -sSL http://www.apache.org/dyn/closer.cgi/${TIKA_SERVER_URL#https://www.apache.org/dist/}\?asjson\=1 | jq -r .preferred) \
-#     && echo "Nearest mirror: $NEAREST_TIKA_SERVER_URL" \
-#     && curl -sSL "${NEAREST_TIKA_SERVER_URL}${TIKA_SERVER_URL#https://www.apache.org/dist/}" -o "/tika-server-${TIKA_VERSION}.jar" \
-#     && gpg --verify "/tmp/tika-server-${TIKA_VERSION}.jar.asc" "/tika-server-${TIKA_VERSION}.jar"
+ENV PRODUCT_ROOT "https://www.apache.org/dist"
+ENV PRODUCT_KEY_URL "${PRODUCT_ROOT}/${PRODUCT_GROUP}/KEYS"
+ENV PRODUCT_ASC_URL "${PRODUCT_ROOT}/${PRODUCT_GROUP}/${PRODUCT_NAME}-${PRODUCT_VERSION}.jar.asc"
 
 RUN apt-get -y --fix-missing update \
-    && apt-get install -y curl jq \
-    && NEAREST_TIKA_SERVER_URL=$(curl -sSL http://www.apache.org/dyn/closer.cgi/${TIKA_SERVER_URL#https://www.apache.org/dist/}\?asjson\=1 | jq -r .preferred) \
-    && echo "Nearest mirror: $NEAREST_TIKA_SERVER_URL" \
-    && curl -sSL "${NEAREST_TIKA_SERVER_URL}${TIKA_SERVER_URL#https://www.apache.org/dist/}" -o "/tika-server.jar"
+    && apt-get install -y gpg curl jq \
+    && echo "PRODUCT_GROUP = ${PRODUCT_GROUP}" \
+    && echo "PRODUCT_NAME = ${PRODUCT_NAME}" \
+    && echo "PRODUCT_VERSION = ${PRODUCT_VERSION}" \
+    && echo "PRODUCT_ROOT = ${PRODUCT_ROOT}" \
+    && echo "PRODUCT_KEY_URL = ${PRODUCT_KEY_URL}" \
+    && echo "PRODUCT_ASC_URL = ${PRODUCT_ASC_URL}" \
+    && curl -sSL "$PRODUCT_KEY_URL" -o /tmp/KEYS \
+    && gpg --import /tmp/KEYS \
+    && curl -sSL "$PRODUCT_ASC_URL" -o "/tmp/${PRODUCT_NAME}.jar.asc" \
+    && NEAREST_JAR_URL=$(curl -sSL http://www.apache.org/dyn/closer.cgi/${PRODUCT_JAR_URL#https://www.apache.org/dist/}\?asjson\=1 | jq -r .preferred | sed 's/\/*$//g') \
+    && echo "NEAREST_JAR_URL = ${NEAREST_JAR_URL}" \
+    && curl -sSL "${NEAREST_JAR_URL}/${PRODUCT_GROUP}/${PRODUCT_NAME}-${PRODUCT_VERSION}.jar" -o "/${PRODUCT_NAME}.jar" \
+    && gpg --verify "/tmp/${PRODUCT_NAME}.jar.asc" "/${PRODUCT_NAME}.jar"
 
 FROM ubuntu:18.04
 
